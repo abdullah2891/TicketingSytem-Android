@@ -8,6 +8,7 @@ import android.widget.TextView;
 
 import com.example.abdullahrahmn.redditview.PostListFragment.OnListFragmentInteractionListener;
 import com.example.abdullahrahmn.redditview.dummy.DummyContent.DummyItem;
+import com.example.abdullahrahmn.redditview.model.Post;
 
 import java.util.List;
 
@@ -18,10 +19,10 @@ import java.util.List;
  */
 public class MyPostListRecyclerViewAdapter extends RecyclerView.Adapter<MyPostListRecyclerViewAdapter.ViewHolder> {
 
-    private final List<DummyItem> mValues;
+    private final List<Post> mValues;
     private final OnListFragmentInteractionListener mListener;
 
-    public MyPostListRecyclerViewAdapter(List<DummyItem> items, OnListFragmentInteractionListener listener) {
+    public MyPostListRecyclerViewAdapter(List<Post> items, OnListFragmentInteractionListener listener) {
         mValues = items;
         mListener = listener;
     }
@@ -36,8 +37,8 @@ public class MyPostListRecyclerViewAdapter extends RecyclerView.Adapter<MyPostLi
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
         holder.mItem = mValues.get(position);
-        holder.mIdView.setText(mValues.get(position).id);
-        holder.mContentView.setText(mValues.get(position).content);
+        holder.mIdView.setText(mValues.get(position).data.title);
+        holder.mContentView.setText(mValues.get(position).data.body);
 
         holder.mView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -60,7 +61,7 @@ public class MyPostListRecyclerViewAdapter extends RecyclerView.Adapter<MyPostLi
         public final View mView;
         public final TextView mIdView;
         public final TextView mContentView;
-        public DummyItem mItem;
+        public Post mItem;
 
         public ViewHolder(View view) {
             super(view);

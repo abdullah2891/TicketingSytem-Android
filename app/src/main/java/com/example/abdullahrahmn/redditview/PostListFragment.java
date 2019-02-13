@@ -6,12 +6,20 @@ import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.example.abdullahrahmn.redditview.dummy.DummyContent;
-import com.example.abdullahrahmn.redditview.dummy.DummyContent.DummyItem;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
+import com.example.abdullahrahmn.redditview.model.Post;
+import com.example.abdullahrahmn.redditview.model.PostWrapper;
+import com.google.gson.Gson;
 
 /**
  * A fragment representing a list of Items.
@@ -24,7 +32,7 @@ public class PostListFragment extends Fragment {
     // TODO: Customize parameter argument names
     private static final String ARG_COLUMN_COUNT = "column-count";
     // TODO: Customize parameters
-    private int mColumnCount = 1;
+    private int mColumnCount = 2;
     private OnListFragmentInteractionListener mListener;
 
     /**
@@ -61,13 +69,45 @@ public class PostListFragment extends Fragment {
         // Set the adapter
         if (view instanceof RecyclerView) {
             Context context = view.getContext();
-            RecyclerView recyclerView = (RecyclerView) view;
+            final RecyclerView recyclerView = (RecyclerView) view;
             if (mColumnCount <= 1) {
                 recyclerView.setLayoutManager(new LinearLayoutManager(context));
             } else {
                 recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
             }
-            recyclerView.setAdapter(new MyPostListRecyclerViewAdapter(DummyContent.ITEMS, mListener));
+
+            RequestQueue requestQueue = Volley.newRequestQueue(getActivity());
+
+            String url = "https://www.reddit.com/r/worldnews/.json";
+
+
+            // Request a string response from the provided URL.
+            StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
+                    new Response.Listener<String>() {
+                        @Override
+                        public void onResponse(String response) {
+                            try {
+                                Log.d("Response", response);
+                                Gson gson = new Gson();
+                                PostWrapper postWrapper = gson.fromJson(response, PostWrapper.class);
+
+                                Log.d("kind", postWrapper.data.children.get(0).data.title);
+                                recyclerView.setAdapter(new MyPostListRecyclerViewAdapter(postWrapper.data.children, mListener));
+                            }catch(Exception e ){
+                                Log.d("error", e.toString());
+                            }
+
+                        }
+                    }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    Log.d("ERROR", error.toString());
+                }
+            });
+
+            requestQueue.add(stringRequest);
+
+
         }
         return view;
     }
@@ -99,6 +139,6 @@ public class PostListFragment extends Fragment {
      */
     public interface OnListFragmentInteractionListener {
         // TODO: Update argument type and name
-        void onListFragmentInteraction(DummyItem item);
+        void onListFragmentInteraction(Post item);
     }
 }
