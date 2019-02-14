@@ -1,6 +1,7 @@
 package com.example.abdullahrahmn.redditview;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
@@ -18,8 +19,12 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.abdullahrahmn.redditview.model.Post;
-import com.example.abdullahrahmn.redditview.model.PostWrapper;
-import com.google.gson.Gson;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * A fragment representing a list of Items.
@@ -76,40 +81,64 @@ public class PostListFragment extends Fragment {
                 recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
             }
 
-            RequestQueue requestQueue = Volley.newRequestQueue(getActivity());
-
-            String url = "https://www.reddit.com/r/worldnews/.json";
-
-
-            // Request a string response from the provided URL.
-            StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
-                    new Response.Listener<String>() {
-                        @Override
-                        public void onResponse(String response) {
-                            try {
-                                Log.d("Response", response);
-                                Gson gson = new Gson();
-                                PostWrapper postWrapper = gson.fromJson(response, PostWrapper.class);
-
-                                Log.d("kind", postWrapper.data.children.get(0).data.title);
-                                recyclerView.setAdapter(new MyPostListRecyclerViewAdapter(postWrapper.data.children, mListener));
-                            }catch(Exception e ){
-                                Log.d("error", e.toString());
-                            }
-
-                        }
-                    }, new Response.ErrorListener() {
-                @Override
-                public void onErrorResponse(VolleyError error) {
-                    Log.d("ERROR", error.toString());
-                }
-            });
-
-            requestQueue.add(stringRequest);
-
+            getAccessToken();
 
         }
         return view;
+    }
+
+    private void getAccessToken(){
+        RequestQueue requestQueue = Volley.newRequestQueue(getActivity());
+
+            String url = "https://shielded-waters-41724.herokuapp.com/api/token/";
+
+            StringRequest accessTokenRequest = new StringRequest(Request.Method.POST, url,
+                new Response.Listener<String>()
+                {
+                    @Override
+                    public void onResponse(String response) {
+                        // response
+                        try {
+                            JSONObject accessTokenObject=  new JSONObject(response);
+
+                            String token = (String) accessTokenObject.get("token");
+                            Log.d("token", token);
+                            SharedPreferences sharedPref = getActivity().getPreferences(getActivity().MODE_PRIVATE);
+                            SharedPreferences.Editor editor = sharedPref.edit();
+                            editor.putString("token",token);
+                            editor.apply();
+
+
+                            token = sharedPref.getString("token", "test");
+                            Log.d("retrieved token", token);
+                        } catch (JSONException e) {
+                            Log.d("error" ,e.toString());
+                        }
+
+                        Log.d("Response", response);
+
+                    }
+                },
+                new Response.ErrorListener()
+                {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        // error
+                        Log.d("Error.Response", error.toString());
+                    }
+                }
+        ) {
+            @Override
+            protected Map<String, String> getParams()
+            {
+                Map<String, String>  params = new HashMap<String, String>();
+                params.put("username", "test");
+                params.put("password", "test");
+
+                return params;
+            }
+        };
+            requestQueue.add(accessTokenRequest);
     }
 
 
