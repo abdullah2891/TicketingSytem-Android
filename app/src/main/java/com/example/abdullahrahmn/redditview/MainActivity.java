@@ -21,7 +21,7 @@ public class MainActivity extends AppCompatActivity {
 
             switch (item.getItemId()) {
                 case R.id.navigation_home:
-                    transaction.replace(R.id.fragment_container, new PostListFragment());
+                    transaction.replace(R.id.fragment_container, new IssuesFragment());
                     transaction.commit();
                     return true;
                 case R.id.navigation_dashboard:
@@ -42,7 +42,7 @@ public class MainActivity extends AppCompatActivity {
 
         //setting up the fragments
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        transaction.add(R.id.fragment_container, new PostListFragment());
+        transaction.add(R.id.fragment_container, new IssuesFragment());
         transaction.commit();
 
         mTextMessage = (TextView) findViewById(R.id.message);

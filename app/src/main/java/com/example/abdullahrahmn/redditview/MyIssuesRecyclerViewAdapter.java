@@ -6,23 +6,22 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.example.abdullahrahmn.redditview.PostListFragment.OnListFragmentInteractionListener;
-import com.example.abdullahrahmn.redditview.dummy.DummyContent.DummyItem;
-import com.example.abdullahrahmn.redditview.model.Post;
+import com.example.abdullahrahmn.redditview.IssuesFragment.OnListFragmentInteractionListener;
+import com.example.abdullahrahmn.redditview.model.Issue;
 
 import java.util.List;
 
 /**
- * {@link RecyclerView.Adapter} that can display a {@link DummyItem} and makes a call to the
+ * {@link RecyclerView.Adapter} that can display a {@link Issue} and makes a call to the
  * specified {@link OnListFragmentInteractionListener}.
  * TODO: Replace the implementation with code for your data type.
  */
-public class MyPostListRecyclerViewAdapter extends RecyclerView.Adapter<MyPostListRecyclerViewAdapter.ViewHolder> {
+public class MyIssuesRecyclerViewAdapter extends RecyclerView.Adapter<MyIssuesRecyclerViewAdapter.ViewHolder> {
 
-    private final List<Post> mValues;
+    private final List<Issue> mValues;
     private final OnListFragmentInteractionListener mListener;
 
-    public MyPostListRecyclerViewAdapter(List<Post> items, OnListFragmentInteractionListener listener) {
+    public MyIssuesRecyclerViewAdapter(List<Issue> items, OnListFragmentInteractionListener listener) {
         mValues = items;
         mListener = listener;
     }
@@ -30,15 +29,15 @@ public class MyPostListRecyclerViewAdapter extends RecyclerView.Adapter<MyPostLi
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.fragment_postlist, parent, false);
+                .inflate(R.layout.fragment_issues, parent, false);
         return new ViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
         holder.mItem = mValues.get(position);
-        holder.mIdView.setText(mValues.get(position).data.title);
-        holder.mContentView.setText(mValues.get(position).data.body);
+        holder.mIdView.setText(mValues.get(position).id);
+        holder.mContentView.setText(mValues.get(position).title);
 
         holder.mView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -61,7 +60,7 @@ public class MyPostListRecyclerViewAdapter extends RecyclerView.Adapter<MyPostLi
         public final View mView;
         public final TextView mIdView;
         public final TextView mContentView;
-        public Post mItem;
+        public Issue mItem;
 
         public ViewHolder(View view) {
             super(view);

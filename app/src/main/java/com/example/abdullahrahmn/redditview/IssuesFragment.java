@@ -18,12 +18,16 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
-import com.example.abdullahrahmn.redditview.model.Post;
+import com.example.abdullahrahmn.redditview.model.Issue;
+import com.google.gson.Gson;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -32,25 +36,26 @@ import java.util.Map;
  * Activities containing this fragment MUST implement the {@link OnListFragmentInteractionListener}
  * interface.
  */
-public class PostListFragment extends Fragment {
+public class IssuesFragment extends Fragment {
 
     // TODO: Customize parameter argument names
     private static final String ARG_COLUMN_COUNT = "column-count";
     // TODO: Customize parameters
-    private int mColumnCount = 2;
+    private int mColumnCount = 4;
     private OnListFragmentInteractionListener mListener;
-
+    private MyIssuesRecyclerViewAdapter mAdapter;
+    private List<Issue> issues;
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
      * fragment (e.g. upon screen orientation changes).
      */
-    public PostListFragment() {
+    public IssuesFragment() {
     }
 
     // TODO: Customize parameter initialization
     @SuppressWarnings("unused")
-    public static PostListFragment newInstance(int columnCount) {
-        PostListFragment fragment = new PostListFragment();
+    public static IssuesFragment newInstance(int columnCount) {
+        IssuesFragment fragment = new IssuesFragment();
         Bundle args = new Bundle();
         args.putInt(ARG_COLUMN_COUNT, columnCount);
         fragment.setArguments(args);
@@ -69,27 +74,76 @@ public class PostListFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_postlist_list, container, false);
+        View view = inflater.inflate(R.layout.fragment_issues_list, container, false);
 
         // Set the adapter
         if (view instanceof RecyclerView) {
             Context context = view.getContext();
-            final RecyclerView recyclerView = (RecyclerView) view;
+            RecyclerView recyclerView = (RecyclerView) view;
             if (mColumnCount <= 1) {
                 recyclerView.setLayoutManager(new LinearLayoutManager(context));
             } else {
                 recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
             }
+            RequestQueue requestQueue = Volley.newRequestQueue(getActivity());
 
-            getAccessToken();
-
+            requestQueue.add(getAccessToken());
+            requestQueue.add(getIssues());
+            issues = new ArrayList<>();
+            mAdapter = new MyIssuesRecyclerViewAdapter(issues, mListener);
+            recyclerView.setAdapter(mAdapter);
         }
         return view;
     }
 
-    private void getAccessToken(){
-        RequestQueue requestQueue = Volley.newRequestQueue(getActivity());
 
+
+
+    private StringRequest getIssues(){
+        String url = "https://shielded-waters-41724.herokuapp.com/api/issues";
+
+
+            StringRequest issueRequest = new StringRequest(Request.Method.GET, url,
+                new Response.Listener<String>()
+                {
+                    @Override
+                    public void onResponse(String response) {
+                        Gson gson =  new Gson();
+                        Log.d("Response", response);
+                        issues.clear();
+                        issues.addAll(Arrays.asList(gson.fromJson(response, Issue[].class)));
+                        Log.d("issue", issues.get(0).title);
+
+                        mAdapter.notifyDataSetChanged();
+                    }
+                },
+                new Response.ErrorListener()
+                {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        // error
+                        Log.d("Error.Response", error.toString());
+                    }
+                }
+        ) {
+            @Override
+            public Map<String, String> getHeaders()
+            {
+                SharedPreferences sharedPref = getActivity().getPreferences(getActivity().MODE_PRIVATE);
+                String token = sharedPref.getString("token", "test");
+                Log.d("retrieved token", token);
+
+                Map<String, String>  params = new HashMap<String, String>();
+                String authorizationParams = "Token " + token;
+                params.put("Authorization", authorizationParams);
+
+                return params;
+            }
+        };
+            return issueRequest;
+
+    }
+    private StringRequest getAccessToken(){
             String url = "https://shielded-waters-41724.herokuapp.com/api/token/";
 
             StringRequest accessTokenRequest = new StringRequest(Request.Method.POST, url,
@@ -138,9 +192,9 @@ public class PostListFragment extends Fragment {
                 return params;
             }
         };
-            requestQueue.add(accessTokenRequest);
-    }
 
+            return accessTokenRequest;
+    }
 
     @Override
     public void onAttach(Context context) {
@@ -168,6 +222,6 @@ public class PostListFragment extends Fragment {
      */
     public interface OnListFragmentInteractionListener {
         // TODO: Update argument type and name
-        void onListFragmentInteraction(Post item);
+        void onListFragmentInteraction(Issue item);
     }
 }
