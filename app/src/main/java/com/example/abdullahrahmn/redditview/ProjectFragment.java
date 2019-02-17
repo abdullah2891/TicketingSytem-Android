@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -18,11 +17,8 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
-import com.example.abdullahrahmn.redditview.model.Issue;
+import com.example.abdullahrahmn.redditview.model.Project;
 import com.google.gson.Gson;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -36,27 +32,27 @@ import java.util.Map;
  * Activities containing this fragment MUST implement the {@link OnListFragmentInteractionListener}
  * interface.
  */
-public class IssuesFragment extends Fragment {
+public class ProjectFragment extends Fragment {
 
     // TODO: Customize parameter argument names
     private static final String ARG_COLUMN_COUNT = "column-count";
     // TODO: Customize parameters
     private int mColumnCount = 1;
     private OnListFragmentInteractionListener mListener;
-    private MyIssuesRecyclerViewAdapter mAdapter;
-    private List<Issue> issues;
+    private List<Project> projects;
+    private MyProjectRecyclerViewAdapter mAdapter;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
      * fragment (e.g. upon screen orientation changes).
      */
-    public IssuesFragment() {
+    public ProjectFragment() {
     }
 
     // TODO: Customize parameter initialization
     @SuppressWarnings("unused")
-    public static IssuesFragment newInstance(int columnCount) {
-        IssuesFragment fragment = new IssuesFragment();
+    public static ProjectFragment newInstance(int columnCount) {
+        ProjectFragment fragment = new ProjectFragment();
         Bundle args = new Bundle();
         args.putInt(ARG_COLUMN_COUNT, columnCount);
         fragment.setArguments(args);
@@ -75,33 +71,26 @@ public class IssuesFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_issues_list, container, false);
+        View view = inflater.inflate(R.layout.fragment_project_list2, container, false);
 
         // Set the adapter
         if (view instanceof RecyclerView) {
             Context context = view.getContext();
             RecyclerView recyclerView = (RecyclerView) view;
-            if (mColumnCount <= 1) {
-                recyclerView.setLayoutManager(new LinearLayoutManager(context));
-            } else {
-                recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
-            }
+            recyclerView.setLayoutManager(new LinearLayoutManager(context));
+
             RequestQueue requestQueue = Volley.newRequestQueue(getActivity());
 
-            requestQueue.add(getAccessToken());
-            requestQueue.add(getIssues());
-            issues = new ArrayList<>();
-            mAdapter = new MyIssuesRecyclerViewAdapter(issues, mListener);
+            requestQueue.add(getProjects());
+            projects = new ArrayList<>();
+            mAdapter = new MyProjectRecyclerViewAdapter(projects, mListener);
+
             recyclerView.setAdapter(mAdapter);
         }
         return view;
     }
-
-
-
-
-    private StringRequest getIssues(){
-        String url = "https://shielded-waters-41724.herokuapp.com/api/issues";
+    private StringRequest getProjects(){
+        String url = "https://shielded-waters-41724.herokuapp.com/api/projects";
 
 
             StringRequest issueRequest = new StringRequest(Request.Method.GET, url,
@@ -110,11 +99,9 @@ public class IssuesFragment extends Fragment {
                     @Override
                     public void onResponse(String response) {
                         Gson gson =  new Gson();
-                        Log.d("Response", response);
-                        issues.clear();
-                        issues.addAll(Arrays.asList(gson.fromJson(response, Issue[].class)));
-                        Log.d("issue", issues.get(0).title);
-
+                        projects.clear();
+                        projects.addAll(Arrays.asList(gson.fromJson(response, Project[].class)));
+                        Log.d("projects", response);
                         mAdapter.notifyDataSetChanged();
                     }
                 },
@@ -144,58 +131,6 @@ public class IssuesFragment extends Fragment {
             return issueRequest;
 
     }
-    private StringRequest getAccessToken(){
-            String url = "https://shielded-waters-41724.herokuapp.com/api/token/";
-
-            StringRequest accessTokenRequest = new StringRequest(Request.Method.POST, url,
-                new Response.Listener<String>()
-                {
-                    @Override
-                    public void onResponse(String response) {
-                        // response
-                        try {
-                            JSONObject accessTokenObject=  new JSONObject(response);
-
-                            String token = (String) accessTokenObject.get("token");
-                            Log.d("token", token);
-                            SharedPreferences sharedPref = getActivity().getPreferences(getActivity().MODE_PRIVATE);
-                            SharedPreferences.Editor editor = sharedPref.edit();
-                            editor.putString("token",token);
-                            editor.apply();
-
-
-                            token = sharedPref.getString("token", "test");
-                            Log.d("retrieved token", token);
-                        } catch (JSONException e) {
-                            Log.d("error" ,e.toString());
-                        }
-
-                        Log.d("Response", response);
-
-                    }
-                },
-                new Response.ErrorListener()
-                {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        // error
-                        Log.d("Error.Response", error.toString());
-                    }
-                }
-        ) {
-            @Override
-            protected Map<String, String> getParams()
-            {
-                Map<String, String>  params = new HashMap<String, String>();
-                params.put("username", "test");
-                params.put("password", "test");
-
-                return params;
-            }
-        };
-
-            return accessTokenRequest;
-    }
 
     @Override
     public void onAttach(Context context) {
@@ -223,6 +158,6 @@ public class IssuesFragment extends Fragment {
      */
     public interface OnListFragmentInteractionListener {
         // TODO: Update argument type and name
-        void onListFragmentInteraction(Issue item);
+        void onListFragmentInteraction(Project item);
     }
 }

@@ -21,14 +21,16 @@ public class MainActivity extends AppCompatActivity {
 
             switch (item.getItemId()) {
                 case R.id.navigation_home:
-                    transaction.replace(R.id.fragment_container, new IssuesFragment());
+                    transaction.replace(R.id.fragment_container, new ProjectFragment());
                     transaction.commit();
                     return true;
                 case R.id.navigation_dashboard:
-                    transaction.replace(R.id.fragment_container, new Settings());
+                    transaction.replace(R.id.fragment_container, new IssuesFragment());
                     transaction.commit();
                     return true;
                 case R.id.navigation_notifications:
+                    transaction.replace(R.id.fragment_container, new Settings());
+                    transaction.commit();
                     return true;
             }
             return false;
@@ -42,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
 
         //setting up the fragments
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        transaction.add(R.id.fragment_container, new IssuesFragment());
+        transaction.add(R.id.fragment_container, new ProjectFragment());
         transaction.commit();
 
         mTextMessage = (TextView) findViewById(R.id.message);
