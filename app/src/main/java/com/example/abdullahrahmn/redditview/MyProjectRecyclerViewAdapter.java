@@ -1,6 +1,7 @@
 package com.example.abdullahrahmn.redditview;
 
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -43,7 +44,9 @@ public class MyProjectRecyclerViewAdapter extends RecyclerView.Adapter<MyProject
         holder.mView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Log.d("clicked","clicked");
                 if (null != mListener) {
+                    Log.d("clicked","clickedlistener");
                     // Notify the active callbacks interface (the activity, if the
                     // fragment is attached to one) that an item has been selected.
                     mListener.onListFragmentInteraction(holder.mItem);

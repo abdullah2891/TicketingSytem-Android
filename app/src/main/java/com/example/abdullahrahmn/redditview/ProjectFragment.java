@@ -68,6 +68,8 @@ public class ProjectFragment extends Fragment {
         }
     }
 
+
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -91,7 +93,6 @@ public class ProjectFragment extends Fragment {
     }
     private StringRequest getProjects(){
         String url = "https://shielded-waters-41724.herokuapp.com/api/projects";
-
 
             StringRequest issueRequest = new StringRequest(Request.Method.GET, url,
                 new Response.Listener<String>()
@@ -132,6 +133,7 @@ public class ProjectFragment extends Fragment {
 
     }
 
+
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
@@ -140,11 +142,14 @@ public class ProjectFragment extends Fragment {
         }
     }
 
+
+
     @Override
     public void onDetach() {
         super.onDetach();
         mListener = null;
     }
+
 
     /**
      * This interface must be implemented by activities that contain this

@@ -1,17 +1,25 @@
 package com.example.abdullahrahmn.redditview;
 
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
-public class MainActivity extends AppCompatActivity {
+import com.example.abdullahrahmn.redditview.model.Project;
+
+public class MainActivity extends AppCompatActivity implements ProjectFragment.OnListFragmentInteractionListener{
 
     private TextView mTextMessage;
-
+    private Button back;
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
 
@@ -25,7 +33,10 @@ public class MainActivity extends AppCompatActivity {
                     transaction.commit();
                     return true;
                 case R.id.navigation_dashboard:
-                    transaction.replace(R.id.fragment_container, new IssuesFragment());
+                    back = findViewById(R.id.backButton);
+                    back.setVisibility(View.VISIBLE);
+
+                    transaction.replace(R.id.fragment_container, new ProjectFragment());
                     transaction.commit();
                     return true;
                 case R.id.navigation_notifications:
@@ -42,6 +53,15 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        SharedPreferences sharedPref = this.getPreferences(this.MODE_PRIVATE);
+        String token = sharedPref.getString("token", "test");
+
+        if(token == null){
+            this.startActivity(new Intent(this,LoginActivity.class));
+        }
+
+        backButtonHandler();
+
         //setting up the fragments
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         transaction.add(R.id.fragment_container, new ProjectFragment());
@@ -52,4 +72,31 @@ public class MainActivity extends AppCompatActivity {
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
     }
 
+     private void backButtonHandler(){
+
+        final Context context = this;
+        back = findViewById(R.id.backButton);
+        //hiding back button
+        back.setVisibility(View.INVISIBLE);
+        back.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                //setting up the fragments
+                FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+                transaction.replace(R.id.fragment_container, new ProjectFragment());
+                transaction.commit();
+                back.setVisibility(View.INVISIBLE);
+            }
+        });
+
+
+    }
+    @Override
+    public void onListFragmentInteraction(Project item) {
+        Log.d("fragment " , item.id);
+        back.setVisibility(View.VISIBLE);
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.replace(R.id.fragment_container, IssuesFragment.newInstance(item.id));
+        transaction.commit();
+    }
 }

@@ -21,11 +21,7 @@ import com.android.volley.toolbox.Volley;
 import com.example.abdullahrahmn.redditview.model.Issue;
 import com.google.gson.Gson;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -55,10 +51,10 @@ public class IssuesFragment extends Fragment {
 
     // TODO: Customize parameter initialization
     @SuppressWarnings("unused")
-    public static IssuesFragment newInstance(int columnCount) {
+    public static IssuesFragment newInstance(String issueId) {
         IssuesFragment fragment = new IssuesFragment();
         Bundle args = new Bundle();
-        args.putInt(ARG_COLUMN_COUNT, columnCount);
+        args.putString("issueId",issueId);
         fragment.setArguments(args);
         return fragment;
     }
@@ -66,7 +62,8 @@ public class IssuesFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        String test = this.getArguments().getString("issueId");
+        Log.d("issueid", getArguments().toString());
         if (getArguments() != null) {
             mColumnCount = getArguments().getInt(ARG_COLUMN_COUNT);
         }
@@ -88,8 +85,7 @@ public class IssuesFragment extends Fragment {
             }
             RequestQueue requestQueue = Volley.newRequestQueue(getActivity());
 
-            requestQueue.add(getAccessToken());
-            requestQueue.add(getIssues());
+            requestQueue.add(getIssue(getArguments().getString("issueId")));
             issues = new ArrayList<>();
             mAdapter = new MyIssuesRecyclerViewAdapter(issues, mListener);
             recyclerView.setAdapter(mAdapter);
@@ -100,7 +96,7 @@ public class IssuesFragment extends Fragment {
 
 
 
-    private StringRequest getIssues(){
+    private StringRequest getIssue(final String issueId){
         String url = "https://shielded-waters-41724.herokuapp.com/api/issues";
 
 
@@ -112,8 +108,14 @@ public class IssuesFragment extends Fragment {
                         Gson gson =  new Gson();
                         Log.d("Response", response);
                         issues.clear();
-                        issues.addAll(Arrays.asList(gson.fromJson(response, Issue[].class)));
-                        Log.d("issue", issues.get(0).title);
+                        Issue[] unsortedIssue = gson.fromJson(response, Issue[].class);
+                        if(unsortedIssue.length > 0) {
+                            for (Issue anUnsortedIssue : unsortedIssue) {
+                                if (anUnsortedIssue.projects.equals(issueId)) {
+                                    issues.add(anUnsortedIssue);
+                                }
+                            }
+                        }
 
                         mAdapter.notifyDataSetChanged();
                     }
@@ -143,58 +145,6 @@ public class IssuesFragment extends Fragment {
         };
             return issueRequest;
 
-    }
-    private StringRequest getAccessToken(){
-            String url = "https://shielded-waters-41724.herokuapp.com/api/token/";
-
-            StringRequest accessTokenRequest = new StringRequest(Request.Method.POST, url,
-                new Response.Listener<String>()
-                {
-                    @Override
-                    public void onResponse(String response) {
-                        // response
-                        try {
-                            JSONObject accessTokenObject=  new JSONObject(response);
-
-                            String token = (String) accessTokenObject.get("token");
-                            Log.d("token", token);
-                            SharedPreferences sharedPref = getActivity().getPreferences(getActivity().MODE_PRIVATE);
-                            SharedPreferences.Editor editor = sharedPref.edit();
-                            editor.putString("token",token);
-                            editor.apply();
-
-
-                            token = sharedPref.getString("token", "test");
-                            Log.d("retrieved token", token);
-                        } catch (JSONException e) {
-                            Log.d("error" ,e.toString());
-                        }
-
-                        Log.d("Response", response);
-
-                    }
-                },
-                new Response.ErrorListener()
-                {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        // error
-                        Log.d("Error.Response", error.toString());
-                    }
-                }
-        ) {
-            @Override
-            protected Map<String, String> getParams()
-            {
-                Map<String, String>  params = new HashMap<String, String>();
-                params.put("username", "test");
-                params.put("password", "test");
-
-                return params;
-            }
-        };
-
-            return accessTokenRequest;
     }
 
     @Override
