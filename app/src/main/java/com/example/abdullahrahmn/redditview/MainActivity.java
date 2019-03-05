@@ -10,7 +10,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -33,9 +32,6 @@ public class MainActivity extends AppCompatActivity implements ProjectFragment.O
                     transaction.commit();
                     return true;
                 case R.id.navigation_dashboard:
-                    home = findViewById(R.id.home);
-                    home.setVisibility(View.VISIBLE);
-
                     transaction.replace(R.id.fragment_container, new ProjectFragment());
                     transaction.commit();
                     return true;

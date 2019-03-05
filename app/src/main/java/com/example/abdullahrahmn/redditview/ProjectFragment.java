@@ -140,6 +140,7 @@ public class ProjectFragment extends Fragment {
         if (context instanceof OnListFragmentInteractionListener) {
             mListener = (OnListFragmentInteractionListener) context;
         }
+
     }
 
 
@@ -149,6 +150,8 @@ public class ProjectFragment extends Fragment {
         super.onDetach();
         mListener = null;
     }
+
+
 
 
     /**
@@ -165,4 +168,6 @@ public class ProjectFragment extends Fragment {
         // TODO: Update argument type and name
         void onListFragmentInteraction(Project item);
     }
+
+
 }
