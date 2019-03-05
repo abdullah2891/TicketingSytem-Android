@@ -17,7 +17,7 @@ import android.widget.TextView;
 
 import com.example.abdullahrahmn.redditview.model.Project;
 
-public class MainActivity extends AppCompatActivity implements ProjectFragment.OnListFragmentInteractionListener{
+public class MainActivity extends AppCompatActivity implements ProjectFragment.OnListFragmentInteractionListener, InputFragment.InputInteractionListener{
 
     private TextView mTextMessage;
     private Button home;
@@ -113,6 +113,15 @@ public class MainActivity extends AppCompatActivity implements ProjectFragment.O
         Log.d("fragment " , item.id);
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         transaction.replace(R.id.fragment_container, IssuesFragment.newInstance(item.id));
+        transaction.commit();
+    }
+
+
+    @Override
+    public void onSubmitTask() {
+        Log.d("Response", "Coming back to project");
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.replace(R.id.fragment_container, new ProjectFragment());
         transaction.commit();
     }
 }

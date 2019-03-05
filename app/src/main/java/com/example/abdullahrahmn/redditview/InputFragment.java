@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -42,6 +43,7 @@ public class InputFragment extends Fragment {
     private String mParam2;
 
     private OnFragmentInteractionListener mListener;
+    private InputInteractionListener inputListener;
     private Button submit;
 
     public InputFragment() {
@@ -100,13 +102,13 @@ public class InputFragment extends Fragment {
     private StringRequest submitTask(final String projects){
             String url = "https://shielded-waters-41724.herokuapp.com/api/projects";
             Log.d("submitting",projects);
-
             StringRequest accessTokenRequest = new StringRequest(Request.Method.POST, url,
                 new Response.Listener<String>()
                 {
                     @Override
                     public void onResponse(String response) {
                         Log.d("Response", response);
+                        inputListener.onSubmitTask();
                     }
                 },
                 new Response.ErrorListener()
@@ -115,6 +117,8 @@ public class InputFragment extends Fragment {
                     public void onErrorResponse(VolleyError error) {
                         // error
                         Log.d("Error.Response", error.toString());
+                        Toast toast = Toast.makeText(getActivity(),"Failed to Send " + error.toString(), Toast.LENGTH_SHORT);
+                        toast.show();
                         if(error.networkResponse !=null){
                             Log.d("submitting projects", new String(error.networkResponse.data));
                         }
@@ -159,6 +163,10 @@ public class InputFragment extends Fragment {
         if (context instanceof OnFragmentInteractionListener) {
             mListener = (OnFragmentInteractionListener) context;
         }
+
+        if(context instanceof  InputInteractionListener){
+            inputListener = (InputInteractionListener) context;
+        }
     }
 
     @Override
@@ -180,6 +188,10 @@ public class InputFragment extends Fragment {
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
+    }
+
+    public interface  InputInteractionListener{
+        void onSubmitTask();
     }
 
 }
