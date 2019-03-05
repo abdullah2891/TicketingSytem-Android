@@ -5,11 +5,13 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -73,8 +75,23 @@ public class MainActivity extends AppCompatActivity implements ProjectFragment.O
         mTextMessage = (TextView) findViewById(R.id.message);
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+
+
+        handleInputFiled();
     }
 
+    private void handleInputFiled(){
+       FloatingActionButton addButton  = findViewById(R.id.addButton);
+       final FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+
+       addButton.setOnClickListener(new View.OnClickListener() {
+           @Override
+           public void onClick(View v) {
+               transaction.replace(R.id.fragment_container, new InputFragment());
+               transaction.commit();
+           }
+       });
+    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item){

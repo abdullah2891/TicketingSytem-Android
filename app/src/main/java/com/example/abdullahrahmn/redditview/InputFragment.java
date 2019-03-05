@@ -1,13 +1,26 @@
 package com.example.abdullahrahmn.redditview;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
+
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
+
+import java.util.HashMap;
+import java.util.Map;
 
 
 /**
@@ -69,15 +82,68 @@ public class InputFragment extends Fragment {
         View view  =  inflater.inflate(R.layout.fragment_input, container, false);
 
         submit =  view.findViewById(R.id.submit);
+        final EditText input = view.findViewById(R.id.inputArea);
+        final RequestQueue requestQueue = Volley.newRequestQueue(getActivity());
 
         submit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 //mListener.onSubmit();
+                requestQueue.add(submitTask(input.getText().toString()));
             }
         });
 
         return view;
+    }
+
+
+    private StringRequest submitTask(final String projects){
+            String url = "https://shielded-waters-41724.herokuapp.com/api/projects";
+            Log.d("submitting",projects);
+
+            StringRequest accessTokenRequest = new StringRequest(Request.Method.POST, url,
+                new Response.Listener<String>()
+                {
+                    @Override
+                    public void onResponse(String response) {
+                        Log.d("Response", response);
+                    }
+                },
+                new Response.ErrorListener()
+                {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        // error
+                        Log.d("Error.Response", error.toString());
+                        if(error.networkResponse !=null){
+                            Log.d("submitting projects", new String(error.networkResponse.data));
+                        }
+                    }
+                }
+        ) {
+            @Override
+            protected Map<String, String> getParams()
+            {
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("projects", projects);
+
+                return params;
+            }
+            @Override
+            public Map<String, String> getHeaders()
+            {
+                SharedPreferences sharedPref = getActivity().getPreferences(getActivity().MODE_PRIVATE);
+                String token = sharedPref.getString("token", "test");
+
+                Map<String, String>  params = new HashMap<String, String>();
+                String authorizationParams = "Token " + token;
+                params.put("Authorization", authorizationParams);
+
+                return params;
+            }
+        };
+
+            return accessTokenRequest;
     }
 
     // TODO: Rename method, update argument and hook method into UI event
